@@ -39,7 +39,7 @@ export default function RoundResult({
         </motion.span>
         <h2 className="neon-text font-display text-3xl font-bold">{title}</h2>
 
-        {/* Silly family catchphrase — bounces in, then wiggles for attention. */}
+        {/* Silly family catchphrase — bounces in, then wiggles once for attention. */}
         <motion.div
           initial={{ scale: 0, y: -28, opacity: 0 }}
           animate={{ scale: 1, y: 0, opacity: 1 }}
@@ -54,7 +54,7 @@ export default function RoundResult({
           <motion.span
             className="inline-block"
             animate={{ rotate: [0, -5, 5, -4, 4, -2, 0], scale: [1, 1.08, 1] }}
-            transition={{ delay: 1, duration: 0.9, repeat: Infinity, repeatDelay: 2 }}
+            transition={{ delay: 1, duration: 0.9 }}
           >
             {phrase}
           </motion.span>
