@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { isMuted, toggleMute, pop } from '../lib/sound.js'
 import { stopSpeaking } from '../lib/speech.js'
+import FullscreenButton from './FullscreenButton.jsx'
 
-// A back arrow on the left and a mute toggle on the right.
+// A back arrow on the left, and full-screen + mute toggles on the right.
 export default function TopBar({ onBack, label = 'Back' }) {
   const [muted, setMuted] = useState(isMuted())
 
@@ -25,19 +26,22 @@ export default function TopBar({ onBack, label = 'Back' }) {
         <span />
       )}
 
-      <motion.button
-        whileTap={{ scale: 0.85 }}
-        onClick={() => {
-          const m = toggleMute()
-          setMuted(m)
-          if (m) stopSpeaking()
-          else pop()
-        }}
-        aria-label={muted ? 'Unmute' : 'Mute'}
-        className="glass flex h-12 w-12 items-center justify-center rounded-full text-2xl"
-      >
-        {muted ? '🔇' : '🔊'}
-      </motion.button>
+      <div className="flex items-center gap-2">
+        <FullscreenButton />
+        <motion.button
+          whileTap={{ scale: 0.85 }}
+          onClick={() => {
+            const m = toggleMute()
+            setMuted(m)
+            if (m) stopSpeaking()
+            else pop()
+          }}
+          aria-label={muted ? 'Unmute' : 'Mute'}
+          className="glass flex h-12 w-12 items-center justify-center rounded-full text-2xl"
+        >
+          {muted ? '🔇' : '🔊'}
+        </motion.button>
+      </div>
     </div>
   )
 }

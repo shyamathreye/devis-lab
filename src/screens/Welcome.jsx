@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Screen from '../components/Screen.jsx'
 import NeonButton from '../components/NeonButton.jsx'
+import FullscreenButton from '../components/FullscreenButton.jsx'
 import { useGame } from '../context/GameContext.jsx'
 import { unlockAudio, ding } from '../lib/sound.js'
 
@@ -21,6 +22,9 @@ export default function Welcome() {
 
   return (
     <Screen className="justify-center text-center">
+      <div className="fixed right-3 top-3 z-50">
+        <FullscreenButton />
+      </div>
       <motion.div
         className="text-7xl"
         animate={{ rotate: [0, -10, 10, 0], y: [0, -12, 0] }}
