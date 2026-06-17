@@ -51,6 +51,7 @@ const COPY = {
     hintSpell: '🔡 Spell it',
     hintHelp: 'Tap for a clue → hear it → spell it',
     allDone: 'All done! 🎉',
+    stopAudio: '⏹ Stop',
 
     // WhackAMole
     whackInstruction: 'Tap the critters! 🌟 is worth lots!',
@@ -119,6 +120,7 @@ const COPY = {
     hintSpell: '🔡 Spell it',
     hintHelp: 'Tap for a clue → hear it → spell it',
     allDone: 'All done, matey! 🏴‍☠️',
+    stopAudio: '⏹ Avast!',
 
     whackInstruction: "Tap the critters! 🌟 be worth lots o' loot!",
     go: 'GO!',

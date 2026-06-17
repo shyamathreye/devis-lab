@@ -29,17 +29,19 @@ function pickVoice() {
   return voices.find((v) => /en[-_]/i.test(v.lang)) || voices[0]
 }
 
-function utter(text, { rate = 0.95, pitch = 1.35, gap = 0 } = {}) {
+// Returns true if it actually started speaking (so callers can track state).
+function utter(text, { rate = 0.95, pitch = 1.35, onEnd } = {}) {
   const s = synth()
-  if (!s || isMuted() || !text) return
+  if (!s || isMuted() || !text) return false
   const u = new SpeechSynthesisUtterance(text)
   const v = pickVoice()
   if (v) u.voice = v
   u.rate = rate
   u.pitch = pitch
   u.volume = 1
-  if (gap) u.text = text
+  if (onEnd) u.onend = onEnd
   s.speak(u)
+  return true
 }
 
 // Cancel anything currently being spoken.
@@ -48,18 +50,25 @@ export function stopSpeaking() {
   if (s) s.cancel()
 }
 
-// Say a whole word.
-export function speak(word) {
+// Whether the engine is currently speaking.
+export function isSpeaking() {
+  const s = synth()
+  return !!(s && s.speaking)
+}
+
+// Say a whole word. onEnd fires when it finishes.
+export function speak(word, onEnd) {
   stopSpeaking()
-  utter(word, { rate: 0.9, pitch: 1.35 })
+  return utter(word, { rate: 0.9, pitch: 1.35, onEnd })
 }
 
 // Spell a word letter by letter, then say the whole word.
-export function spell(word) {
+// Letters are LOWER-case so engines read "b" not "capital B".
+export function spell(word, onEnd) {
   const s = synth()
-  if (!s || isMuted() || !word) return
+  if (!s || isMuted() || !word) return false
   stopSpeaking()
-  for (const ch of word.toUpperCase()) {
+  for (const ch of word.toLowerCase()) {
     const u = new SpeechSynthesisUtterance(ch)
     const v = pickVoice()
     if (v) u.voice = v
@@ -72,7 +81,9 @@ export function spell(word) {
   if (v) w.voice = v
   w.rate = 0.85
   w.pitch = 1.35
+  if (onEnd) w.onend = onEnd
   s.speak(w)
+  return true
 }
 
 const PRAISES = [

@@ -2,6 +2,7 @@
 
 const PROFILE_KEY = 'devislab.profile'
 const BOARD_PREFIX = 'devislab.board.'
+const KEYBOARD_KEY = 'devislab.keyboard'
 const MAX_PER_BOARD = 10
 
 function read(key, fallback) {
@@ -36,6 +37,16 @@ export function clearProfile() {
   } catch (e) {
     /* ignore */
   }
+}
+
+// ---- On-screen keyboard layout preference ('abc' | 'qwerty') ----
+export function loadKeyboardLayout() {
+  const v = read(KEYBOARD_KEY, 'abc')
+  return v === 'qwerty' ? 'qwerty' : 'abc'
+}
+
+export function saveKeyboardLayout(layout) {
+  write(KEYBOARD_KEY, layout === 'qwerty' ? 'qwerty' : 'abc')
 }
 
 // ---- Leaderboard (per game) ----
