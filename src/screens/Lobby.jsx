@@ -35,7 +35,7 @@ export default function Lobby() {
       <div className="mt-1 flex flex-col items-center">
         <Mascot emoji={theme?.critter || '🦄'} mood="idle" size="text-6xl" />
         <h1 className="neon-text mt-1 font-display text-4xl font-bold sm:text-5xl">
-          Devi's Lab
+          Devi Jones
         </h1>
         <p className="mt-1 text-lg font-semibold">
           Hi <span style={{ color: 'var(--accent)' }}>{name}</span>! Pick a game 🎮

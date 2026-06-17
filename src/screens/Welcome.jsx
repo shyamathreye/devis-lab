@@ -30,7 +30,7 @@ export default function Welcome() {
       </motion.div>
 
       <h1 className="neon-text mt-3 font-display text-5xl font-bold sm:text-6xl">
-        Devi's Lab
+        Devi Jones
       </h1>
       <p className="mt-2 text-lg font-semibold opacity-90">
         ✨ Games, words & giggles ✨
