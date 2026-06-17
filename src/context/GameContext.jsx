@@ -2,7 +2,13 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { THEMES, applyTheme } from '../data/themes.js'
 import { getDifficulty } from '../data/difficulties.js'
 import { makeCopy } from '../lib/copy.js'
-import { loadProfile, saveProfile, clearProfile } from '../lib/storage.js'
+import {
+  loadProfile,
+  saveProfile,
+  clearProfile,
+  loadKeyboardLayout,
+  saveKeyboardLayout,
+} from '../lib/storage.js'
 import { warmUpVoices } from '../lib/speech.js'
 
 const GameContext = createContext(null)
@@ -14,6 +20,7 @@ export function GameProvider({ children }) {
   const [screen, setScreen] = useState('welcome')
   const [game, setGame] = useState(null) // 'hangman' | 'unscramble' | 'whack'
   const [difficultyId, setDifficultyId] = useState('baby')
+  const [keyboardLayout, setKeyboardLayout] = useState(() => loadKeyboardLayout()) // 'abc' | 'qwerty'
 
   // Restore a saved player on first load so returning kids skip straight to the lobby.
   useEffect(() => {
@@ -56,6 +63,13 @@ export function GameProvider({ children }) {
       difficulty,
       difficultyId,
       setDifficultyId,
+      keyboardLayout,
+      toggleKeyboardLayout: () =>
+        setKeyboardLayout((prev) => {
+          const next = prev === 'qwerty' ? 'abc' : 'qwerty'
+          saveKeyboardLayout(next)
+          return next
+        }),
       // Navigation helpers
       goTheme: () => setScreen('theme'),
       goLobby: () => {
@@ -79,7 +93,7 @@ export function GameProvider({ children }) {
         setScreen('welcome')
       },
     }),
-    [name, copy, theme, themeId, screen, game, difficulty, difficultyId],
+    [name, copy, theme, themeId, screen, game, difficulty, difficultyId, keyboardLayout],
   )
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>

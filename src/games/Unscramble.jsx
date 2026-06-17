@@ -10,13 +10,15 @@ import { useGame } from '../context/GameContext.jsx'
 import { getRounds } from '../data/words.js'
 import { scrambleWord } from '../lib/scramble.js'
 import { pop, ding, buzz, fanfare } from '../lib/sound.js'
-import { speak, spell } from '../lib/speech.js'
+import { speak, spell, stopSpeaking } from '../lib/speech.js'
 import { addScore } from '../lib/storage.js'
+import { useFitTiles } from '../lib/useFitTiles.js'
 
 const TOTAL_ROUNDS = 6
 
 export default function Unscramble() {
   const { name, theme, difficulty, goLobby, copy } = useGame()
+  const [speaking, setSpeaking] = useState(false)
   const [session, setSession] = useState(0) // bump to start a brand-new 6-word game
   // Fixed list of words for this game session.
   const words = useMemo(
@@ -36,6 +38,11 @@ export default function Unscramble() {
 
   const entry = words[roundIdx]
   const word = entry.word
+
+  // Keep the answer slots and the letter tray on one line for any word length.
+  const slotsFit = useFitTiles(word.length, { max: 56, min: 22, gap: 8, ratio: 1.14 })
+  const trayFit = useFitTiles(word.length, { max: 56, min: 22, gap: 8, ratio: 1.14 })
+
   const tileById = useMemo(() => {
     const m = {}
     trayTiles.forEach((t) => (m[t.id] = t))
@@ -45,6 +52,8 @@ export default function Unscramble() {
 
   // (Re)initialise the current round. No automatic speech.
   useEffect(() => {
+    stopSpeaking()
+    setSpeaking(false)
     setTrayTiles(scrambleWord(word))
     setPlacedSlots(Array(word.length).fill(null))
     setWrong(false)
@@ -88,8 +97,8 @@ export default function Unscramble() {
     pop()
     const stage = Math.min(hintStage + 1, 3)
     setHintStage(stage)
-    if (stage === 2) speak(word)
-    else if (stage === 3) spell(word)
+    if (stage === 2) setSpeaking(speak(word, () => setSpeaking(false)))
+    else if (stage === 3) setSpeaking(spell(word, () => setSpeaking(false)))
   }
   const hintLabel = [
     copy.t('hintClue'),
@@ -101,6 +110,8 @@ export default function Unscramble() {
   const checkAnswer = (slots) => {
     const attempt = slots.map((id) => tileById[id]?.ch).join('')
     if (attempt === word) {
+      stopSpeaking()
+      setSpeaking(false)
       fanfare()
       const elapsed = (Date.now() - startAt) / 1000
       const speedBonus = Math.max(0, 30 - Math.floor(elapsed))
@@ -162,9 +173,11 @@ export default function Unscramble() {
         </motion.div>
       )}
 
-      {/* Answer slots (fixed) */}
+      {/* Answer slots (fixed) — sized to stay on one line. */}
       <motion.div
-        className="mt-5 flex flex-wrap justify-center gap-2"
+        ref={slotsFit.ref}
+        className="mt-5 flex w-full max-w-xl flex-nowrap justify-center"
+        style={{ gap: slotsFit.gap }}
         animate={wrong ? { x: [0, -10, 10, -8, 8, 0] } : {}}
         transition={{ duration: 0.45 }}
       >
@@ -174,8 +187,11 @@ export default function Unscramble() {
             <button
               key={i}
               onClick={() => removeSlot(i)}
-              className="flex h-16 w-14 items-center justify-center rounded-2xl border-4 font-display text-3xl font-bold uppercase"
+              className="flex shrink-0 items-center justify-center rounded-2xl border-4 font-display font-bold uppercase"
               style={{
+                width: slotsFit.size,
+                height: slotsFit.height,
+                fontSize: slotsFit.font,
                 borderColor: solved ? 'var(--accent2)' : 'var(--accent)',
                 background: tile
                   ? solved
@@ -192,9 +208,13 @@ export default function Unscramble() {
         })}
       </motion.div>
 
-      {/* Letter tray — FIXED positions. A placed tile leaves an empty hole behind,
-          so nothing ever shifts around. */}
-      <div className="mt-7 flex min-h-[72px] flex-wrap justify-center gap-2">
+      {/* Letter tray — FIXED positions, one line. A placed tile leaves an empty
+          hole behind, so nothing ever shifts around. */}
+      <div
+        ref={trayFit.ref}
+        className="mt-7 flex w-full max-w-xl flex-nowrap justify-center"
+        style={{ gap: trayFit.gap, minHeight: trayFit.height }}
+      >
         {trayTiles.map((tile) => {
           const used = placedIds.has(tile.id)
           if (used) {
@@ -202,8 +222,12 @@ export default function Unscramble() {
             return (
               <div
                 key={tile.id}
-                className="h-16 w-14 rounded-2xl border-2 border-dashed"
-                style={{ borderColor: 'rgba(255,255,255,0.18)' }}
+                className="shrink-0 rounded-2xl border-2 border-dashed"
+                style={{
+                  width: trayFit.size,
+                  height: trayFit.height,
+                  borderColor: 'rgba(255,255,255,0.18)',
+                }}
               />
             )
           }
@@ -212,8 +236,11 @@ export default function Unscramble() {
               key={tile.id}
               whileTap={{ scale: 0.85 }}
               onClick={() => placeTile(tile)}
-              className="flex h-16 w-14 items-center justify-center rounded-2xl font-display text-3xl font-bold uppercase text-white"
+              className="flex shrink-0 items-center justify-center rounded-2xl font-display font-bold uppercase text-white"
               style={{
+                width: trayFit.size,
+                height: trayFit.height,
+                fontSize: trayFit.font,
                 background: 'rgba(255,255,255,0.16)',
                 boxShadow: '0 0 10px rgba(255,255,255,0.25)',
               }}
@@ -227,13 +254,27 @@ export default function Unscramble() {
       {/* Hint — taps cycle: show clue, then say the word, then spell it.
           Voice only ever fires here, on an explicit tap. */}
       <div className="mt-6 flex flex-col items-center gap-2">
-        <button
-          onClick={useHint}
-          className="glass rounded-full px-6 py-3 text-lg font-bold"
-          style={{ boxShadow: '0 0 12px var(--accent)' }}
-        >
-          {hintLabel}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={useHint}
+            className="glass rounded-full px-6 py-3 text-lg font-bold"
+            style={{ boxShadow: '0 0 12px var(--accent)' }}
+          >
+            {hintLabel}
+          </button>
+          {speaking && (
+            <button
+              onClick={() => {
+                stopSpeaking()
+                setSpeaking(false)
+              }}
+              className="glass rounded-full px-5 py-3 text-lg font-bold"
+              style={{ boxShadow: '0 0 12px var(--accent)' }}
+            >
+              {copy.t('stopAudio')}
+            </button>
+          )}
+        </div>
         <span className="text-xs font-semibold opacity-60">
           {copy.t('hintHelp')}
         </span>

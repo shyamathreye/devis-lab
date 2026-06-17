@@ -9,15 +9,21 @@ import RoundResult from '../components/RoundResult.jsx'
 import { useGame } from '../context/GameContext.jsx'
 import { getRounds } from '../data/words.js'
 import { ding, buzz, fanfare, sad } from '../lib/sound.js'
-import { speak } from '../lib/speech.js'
+import { speak, stopSpeaking } from '../lib/speech.js'
 import { addScore } from '../lib/storage.js'
+import { useFitTiles } from '../lib/useFitTiles.js'
 
-const ALPHABET = 'abcdefghijklmnopqrstuvwxyz'.split('')
+// On-screen keyboard layouts. Rows keep each line short enough to fit.
+const KEYBOARDS = {
+  abc: ['abcdefg', 'hijklmn', 'opqrstu', 'vwxyz'],
+  qwerty: ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'],
+}
 const MAX_BALLOONS = 6
 const TOTAL_ROUNDS = 6
 
 export default function Hangman() {
-  const { name, theme, difficulty, goLobby, copy } = useGame()
+  const { name, theme, difficulty, goLobby, copy, keyboardLayout, toggleKeyboardLayout } = useGame()
+  const [speaking, setSpeaking] = useState(false)
   const [session, setSession] = useState(0) // bump to start a brand-new 6-word game
   const words = useMemo(
     () => getRounds(theme.id, difficulty.bucket, TOTAL_ROUNDS),
@@ -35,6 +41,13 @@ export default function Hangman() {
   const entry = words[roundIdx]
   const word = entry.word
 
+  // Keep the word blanks on one line for any word length.
+  const blanksFit = useFitTiles(word.length, { max: 56, min: 22, gap: 8 })
+  // Keyboard: size keys so the widest row fits on one line.
+  const rows = KEYBOARDS[keyboardLayout] || KEYBOARDS.abc
+  const keyCols = Math.max(...rows.map((r) => r.length))
+  const keyFit = useFitTiles(keyCols, { max: 46, min: 26, gap: 6, ratio: 1, fontRatio: 0.5 })
+
   // New session -> back to round 1.
   useEffect(() => {
     setRoundIdx(0)
@@ -45,6 +58,8 @@ export default function Hangman() {
 
   // (Re)start a round.
   useEffect(() => {
+    stopSpeaking()
+    setSpeaking(false)
     const seed = new Set()
     if (difficulty.showFirstLetter) seed.add(word[0])
     setGuessed(seed)
@@ -153,23 +168,42 @@ export default function Hangman() {
           {entry.emoji}
         </motion.span>
         <button
-          onClick={() => speak(word)}
+          onClick={() => setSpeaking(speak(word, () => setSpeaking(false)))}
           className="glass rounded-full px-4 py-3 text-lg font-bold"
         >
           {copy.t('hearIt')}
         </button>
+        {speaking && (
+          <button
+            onClick={() => {
+              stopSpeaking()
+              setSpeaking(false)
+            }}
+            className="glass rounded-full px-4 py-3 text-lg font-bold"
+            style={{ boxShadow: '0 0 12px var(--accent)' }}
+          >
+            {copy.t('stopAudio')}
+          </button>
+        )}
       </div>
 
-      {/* Word blanks */}
-      <div className="mt-4 flex flex-wrap justify-center gap-2">
+      {/* Word blanks — sized to always stay on one line. */}
+      <div
+        ref={blanksFit.ref}
+        className="mt-4 flex w-full max-w-xl flex-nowrap justify-center"
+        style={{ gap: blanksFit.gap }}
+      >
         {word.split('').map((ch, i) => {
           const shown = guessed.has(ch)
           return (
             <motion.div
               key={i}
               animate={shown ? { scale: [0.6, 1.2, 1] } : {}}
-              className="flex h-14 w-12 items-center justify-center rounded-xl border-b-4 font-display text-3xl font-bold uppercase sm:h-16 sm:w-14"
+              className="flex shrink-0 items-center justify-center rounded-xl border-b-4 font-display font-bold uppercase"
               style={{
+                width: blanksFit.size,
+                height: blanksFit.height,
+                fontSize: blanksFit.font,
                 borderColor: 'var(--accent)',
                 background: shown ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.04)',
                 color: shown ? 'var(--accent)' : 'transparent',
@@ -182,32 +216,50 @@ export default function Hangman() {
         })}
       </div>
 
-      {/* Letter keyboard */}
-      <div className="mt-5 grid w-full max-w-xl grid-cols-7 gap-2 sm:grid-cols-9">
-        {ALPHABET.map((letter) => {
-          const used = guessed.has(letter)
-          const correct = used && word.includes(letter)
-          return (
-            <motion.button
-              key={letter}
-              whileTap={{ scale: 0.85 }}
-              disabled={used || status !== 'playing'}
-              onClick={() => guess(letter)}
-              className="flex aspect-square items-center justify-center rounded-xl font-display text-xl font-bold uppercase disabled:opacity-40"
-              style={{
-                background: correct
-                  ? 'var(--accent)'
-                  : used
-                    ? 'rgba(255,80,80,0.35)'
-                    : 'rgba(255,255,255,0.12)',
-                boxShadow: used ? 'none' : '0 0 8px rgba(255,255,255,0.15)',
-                color: '#fff',
-              }}
-            >
-              {letter}
-            </motion.button>
-          )
-        })}
+      {/* Keyboard layout toggle (ABC ⇄ QWERTY) */}
+      <div className="mt-5 flex w-full max-w-xl items-center justify-end">
+        <button
+          onClick={toggleKeyboardLayout}
+          className="glass rounded-full px-3 py-1.5 text-xs font-bold"
+          aria-label="Switch keyboard layout"
+        >
+          ⌨️ {keyboardLayout === 'qwerty' ? 'QWERTY' : 'ABC'}
+        </button>
+      </div>
+
+      {/* Letter keyboard — rows sized to fit one line each. */}
+      <div ref={keyFit.ref} className="mt-2 flex w-full max-w-xl flex-col items-center" style={{ gap: keyFit.gap }}>
+        {rows.map((row, ri) => (
+          <div key={ri} className="flex justify-center" style={{ gap: keyFit.gap }}>
+            {row.split('').map((letter) => {
+              const used = guessed.has(letter)
+              const correct = used && word.includes(letter)
+              return (
+                <motion.button
+                  key={letter}
+                  whileTap={{ scale: 0.85 }}
+                  disabled={used || status !== 'playing'}
+                  onClick={() => guess(letter)}
+                  className="flex shrink-0 items-center justify-center rounded-xl font-display font-bold uppercase disabled:opacity-40"
+                  style={{
+                    width: keyFit.size,
+                    height: keyFit.height,
+                    fontSize: keyFit.font,
+                    background: correct
+                      ? 'var(--accent)'
+                      : used
+                        ? 'rgba(255,80,80,0.35)'
+                        : 'rgba(255,255,255,0.12)',
+                    boxShadow: used ? 'none' : '0 0 8px rgba(255,255,255,0.15)',
+                    color: '#fff',
+                  }}
+                >
+                  {letter}
+                </motion.button>
+              )
+            })}
+          </div>
+        ))}
       </div>
 
       {/* Between-word overlay — full screen so it stands out. */}
