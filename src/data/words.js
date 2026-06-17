@@ -1,4 +1,4 @@
-// Word banks for Devi's Lab.
+// Word banks for Devi Jones.
 //
 // Words are organised by LENGTH bucket (baby=3, kid=4, adult=5, thatha=6-7),
 // NOT by theme. Themes mainly set the look & feel; for variety the games draw

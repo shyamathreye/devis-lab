@@ -1,4 +1,4 @@
-# Devi's Lab ✨
+# Devi Jones ✨
 
 A bright, neon, sound-rich mini-games site for Devi (age 5). Three games, four
 themes, kid-friendly difficulty levels, voice readout, and a local leaderboard.
