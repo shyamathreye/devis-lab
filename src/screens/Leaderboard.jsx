@@ -8,26 +8,24 @@ import { DIFFICULTIES } from '../data/difficulties.js'
 import { THEMES } from '../data/themes.js'
 import { pop } from '../lib/sound.js'
 
-const GAMES = [
-  { id: 'hangman', name: 'Balloons', emoji: '🎈' },
-  { id: 'unscramble', name: 'Mix-Up', emoji: '🔤' },
-  { id: 'whack', name: 'Critters', emoji: '👆' },
-]
+const GAME_IDS = ['hangman', 'unscramble', 'whack']
 
 const MEDALS = ['🥇', '🥈', '🥉']
 
 export default function Leaderboard() {
-  const { name, goLobby } = useGame()
+  const { name, goLobby, copy } = useGame()
   const [game, setGame] = useState('hangman')
   const [diff, setDiff] = useState('all')
   const [version, setVersion] = useState(0) // bump to re-read after clearing
+
+  const games = GAME_IDS.map((id) => ({ id, name: copy.gameShort(id), emoji: copy.game(id).emoji }))
 
   let rows = getBoard(game)
   if (diff !== 'all') rows = rows.filter((r) => r.difficulty === diff)
   rows = [...rows].sort((a, b) => b.score - a.score).slice(0, 10)
 
   const clear = () => {
-    if (window.confirm('Clear all scores for this game?')) {
+    if (window.confirm(copy.t('clearConfirm'))) {
       clearBoard(game)
       setVersion((v) => v + 1)
     }
@@ -35,12 +33,12 @@ export default function Leaderboard() {
 
   return (
     <Screen>
-      <TopBar onBack={goLobby} label="Home" />
-      <h1 className="neon-text mt-2 font-display text-4xl font-bold">🏆 Top Stars</h1>
+      <TopBar onBack={goLobby} label={copy.t('backHome')} />
+      <h1 className="neon-text mt-2 font-display text-4xl font-bold">{copy.t('leaderboardTitle')}</h1>
 
       {/* Game tabs */}
       <div className="mt-4 flex w-full justify-center gap-2">
-        {GAMES.map((g) => (
+        {games.map((g) => (
           <button
             key={g.id}
             onClick={() => {
@@ -62,11 +60,11 @@ export default function Leaderboard() {
       {/* Difficulty filter */}
       <div className="mt-3 flex flex-wrap justify-center gap-2">
         <Chip active={diff === 'all'} onClick={() => setDiff('all')}>
-          All
+          {copy.t('filterAll')}
         </Chip>
         {DIFFICULTIES.map((d) => (
           <Chip key={d.id} active={diff === d.id} onClick={() => setDiff(d.id)}>
-            {d.emoji} {d.name}
+            {d.emoji} {copy.diff(d.id).name}
           </Chip>
         ))}
       </div>
@@ -75,7 +73,7 @@ export default function Leaderboard() {
       <div className="mt-5 flex w-full flex-col gap-2" key={version}>
         {rows.length === 0 && (
           <p className="mt-6 text-center text-lg opacity-75">
-            No scores yet — go play! 🎮
+            {copy.t('noScores')}
           </p>
         )}
         {rows.map((r, i) => {
@@ -102,7 +100,7 @@ export default function Leaderboard() {
                 {isMe && <span className="ml-1 text-sm opacity-70">(you)</span>}
               </span>
               <span className="text-xs opacity-70">
-                {DIFFICULTIES.find((d) => d.id === r.difficulty)?.name}
+                {copy.diff(r.difficulty)?.name}
               </span>
               <span className="font-display text-2xl font-bold" style={{ color: 'var(--accent2)' }}>
                 {r.score}
@@ -117,7 +115,7 @@ export default function Leaderboard() {
           onClick={clear}
           className="mt-6 rounded-full px-5 py-2 text-sm font-bold opacity-60 underline"
         >
-          Clear scores
+          {copy.t('clearScores')}
         </button>
       )}
     </Screen>

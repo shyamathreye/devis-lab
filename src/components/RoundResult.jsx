@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Sparkles from './Sparkles.jsx'
 import NeonButton from './NeonButton.jsx'
+import { useGame } from '../context/GameContext.jsx'
 import { randomPhrase } from '../lib/phrases.js'
 
 // Full-screen celebratory (or gentle) overlay shown when a round ends.
@@ -14,8 +15,9 @@ export default function RoundResult({
   onPlayAgain,
   onLobby,
 }) {
+  const { copy } = useGame()
   // One silly catchphrase per results screen (persists until dismissed).
-  const [phrase] = useState(() => randomPhrase())
+  const [phrase] = useState(() => randomPhrase(copy.isPirate))
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -65,7 +67,7 @@ export default function RoundResult({
             className="mt-1 rounded-2xl px-6 py-2"
             style={{ boxShadow: '0 0 14px var(--accent2)' }}
           >
-            <span className="text-sm font-bold uppercase tracking-wide opacity-80">Score</span>
+            <span className="text-sm font-bold uppercase tracking-wide opacity-80">{copy.t('scoreLabel')}</span>
             <div className="font-display text-4xl font-bold" style={{ color: 'var(--accent2)' }}>
               {score}
             </div>
@@ -74,24 +76,24 @@ export default function RoundResult({
 
         {rank === 0 && (
           <p className="text-lg font-bold" style={{ color: 'var(--accent)' }}>
-            🥇 New top score!
+            {copy.t('newTopScore')}
           </p>
         )}
         {rank > 0 && (
           <p className="text-base font-semibold opacity-90">
-            🏆 You made the leaderboard — #{rank + 1}!
+            {copy.t('madeLeaderboard')(rank)}
           </p>
         )}
 
         <div className="mt-3 flex w-full flex-col gap-3">
           <NeonButton className="w-full" onClick={onPlayAgain}>
-            Play again 🔁
+            {copy.t('playAgain')}
           </NeonButton>
           <button
             onClick={onLobby}
             className="glass w-full rounded-2xl px-5 py-3 text-lg font-bold"
           >
-            🏠 Home
+            {copy.t('home')}
           </button>
         </div>
       </motion.div>

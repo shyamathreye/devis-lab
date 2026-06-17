@@ -32,9 +32,12 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-full w-full">
+    <div className="h-[100dvh] w-full overflow-hidden">
       <AnimatePresence mode="wait">
-        <div key={screen + (screen === 'game' ? game : '')} className="min-h-screen">
+        <div
+          key={screen + (screen === 'game' ? game : '')}
+          className="h-full w-full overflow-y-auto overflow-x-hidden"
+        >
           {content}
         </div>
       </AnimatePresence>

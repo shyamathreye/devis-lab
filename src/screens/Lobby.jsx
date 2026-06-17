@@ -5,29 +5,11 @@ import Mascot from '../components/Mascot.jsx'
 import { useGame } from '../context/GameContext.jsx'
 import { ding } from '../lib/sound.js'
 
-const GAMES = [
-  {
-    id: 'hangman',
-    name: 'Save the Balloons',
-    emoji: '🎈',
-    blurb: 'Guess the word',
-  },
-  {
-    id: 'unscramble',
-    name: 'Mix-Up Magic',
-    emoji: '🔤',
-    blurb: 'Fix the jumble',
-  },
-  {
-    id: 'whack',
-    name: 'Tap the Critter',
-    emoji: '👆',
-    blurb: 'Fastest finger!',
-  },
-]
+const GAME_IDS = ['hangman', 'unscramble', 'whack']
 
 export default function Lobby() {
-  const { name, theme, startGame, goLeaderboard, goTheme, switchPlayer } = useGame()
+  const { name, theme, startGame, goLeaderboard, goTheme, switchPlayer, copy } = useGame()
+  const games = GAME_IDS.map((id) => ({ id, ...copy.game(id) }))
 
   return (
     <Screen>
@@ -35,15 +17,16 @@ export default function Lobby() {
       <div className="mt-1 flex flex-col items-center">
         <Mascot emoji={theme?.critter || '🦄'} mood="idle" size="text-6xl" />
         <h1 className="neon-text mt-1 font-display text-4xl font-bold sm:text-5xl">
-          Devi Jones
+          {copy.t('appTitle')}
         </h1>
         <p className="mt-1 text-lg font-semibold">
-          Hi <span style={{ color: 'var(--accent)' }}>{name}</span>! Pick a game 🎮
+          {copy.t('lobbyHi')} <span style={{ color: 'var(--accent)' }}>{name}</span>
+          {copy.t('lobbyPick')}
         </p>
       </div>
 
       <div className="mt-6 flex w-full flex-col gap-4">
-        {GAMES.map((g, i) => (
+        {games.map((g, i) => (
           <motion.button
             key={g.id}
             initial={{ opacity: 0, x: -24 }}
@@ -74,19 +57,19 @@ export default function Lobby() {
           onClick={goLeaderboard}
           className="glass rounded-full px-5 py-3 text-lg font-bold"
         >
-          🏆 Leaderboard
+          {copy.t('leaderboardBtn')}
         </button>
         <button
           onClick={goTheme}
           className="glass rounded-full px-5 py-3 text-lg font-bold"
         >
-          {theme?.emoji} Change world
+          {theme?.emoji} {copy.t('changeWorldBtn')}
         </button>
         <button
           onClick={switchPlayer}
           className="rounded-full px-4 py-3 text-sm font-bold opacity-70 underline"
         >
-          Not {name}? Switch player
+          {copy.t('switchPlayer')(name)}
         </button>
       </div>
     </Screen>

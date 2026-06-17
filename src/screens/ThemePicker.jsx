@@ -6,7 +6,7 @@ import { THEME_LIST, applyTheme } from '../data/themes.js'
 import { ding } from '../lib/sound.js'
 
 export default function ThemePicker() {
-  const { name, setThemeId, setScreen, goLobby } = useGame()
+  const { name, setThemeId, setScreen, goLobby, copy } = useGame()
 
   const choose = (theme) => {
     applyTheme(theme)
@@ -17,11 +17,11 @@ export default function ThemePicker() {
 
   return (
     <Screen>
-      <TopBar onBack={() => setScreen('welcome')} label="Back" />
+      <TopBar onBack={() => setScreen('welcome')} label={copy.t('backBack')} />
       <h2 className="neon-text mt-4 text-center font-display text-3xl font-bold sm:text-4xl">
-        {name}, pick your world!
+        {copy.t('pickWorld')(name)}
       </h2>
-      <p className="mt-1 text-center text-base opacity-85">Tap one to start ✨</p>
+      <p className="mt-1 text-center text-base opacity-85">{copy.t('pickWorldHint')}</p>
 
       <div className="mt-7 grid w-full grid-cols-2 gap-4 sm:gap-5">
         {THEME_LIST.map((theme, i) => (

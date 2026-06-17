@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { THEMES, applyTheme } from '../data/themes.js'
 import { getDifficulty } from '../data/difficulties.js'
+import { makeCopy } from '../lib/copy.js'
 import { loadProfile, saveProfile, clearProfile } from '../lib/storage.js'
 import { warmUpVoices } from '../lib/speech.js'
 
@@ -27,11 +28,13 @@ export function GameProvider({ children }) {
 
   const theme = themeId ? THEMES[themeId] : null
   const difficulty = getDifficulty(difficultyId)
+  const copy = useMemo(() => makeCopy(themeId), [themeId])
 
-  // Keep the page's CSS theme variables in sync.
+  // Keep the page's CSS theme variables (and the pirate skin hook) in sync.
   useEffect(() => {
     if (theme) applyTheme(theme)
-  }, [theme])
+    document.documentElement.dataset.theme = themeId || 'default'
+  }, [theme, themeId])
 
   // Persist the profile whenever name + theme are both known.
   useEffect(() => {
@@ -42,6 +45,7 @@ export function GameProvider({ children }) {
     () => ({
       name,
       setName,
+      copy,
       theme,
       themeId,
       setThemeId,
@@ -75,7 +79,7 @@ export function GameProvider({ children }) {
         setScreen('welcome')
       },
     }),
-    [name, theme, themeId, screen, game, difficulty, difficultyId],
+    [name, copy, theme, themeId, screen, game, difficulty, difficultyId],
   )
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>

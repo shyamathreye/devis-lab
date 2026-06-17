@@ -17,7 +17,7 @@ const MAX_BALLOONS = 6
 const TOTAL_ROUNDS = 6
 
 export default function Hangman() {
-  const { name, theme, difficulty, goLobby } = useGame()
+  const { name, theme, difficulty, goLobby, copy } = useGame()
   const [session, setSession] = useState(0) // bump to start a brand-new 6-word game
   const words = useMemo(
     () => getRounds(theme.id, difficulty.bucket, TOTAL_ROUNDS),
@@ -114,11 +114,11 @@ export default function Hangman() {
 
   return (
     <Screen>
-      <TopBar onBack={goLobby} label="Games" />
+      <TopBar onBack={goLobby} label={copy.t('backGames')} />
 
       <div className="mt-2 flex w-full items-center justify-between gap-3 px-1">
         <ProgressDots total={TOTAL_ROUNDS} done={roundIdx} current={roundIdx} />
-        <ScoreBadge label="Score" value={totalScore} />
+        <ScoreBadge label={copy.t('scoreLabel')} value={totalScore} />
       </div>
 
       {/* Balloons (your lives) */}
@@ -156,7 +156,7 @@ export default function Hangman() {
           onClick={() => speak(word)}
           className="glass rounded-full px-4 py-3 text-lg font-bold"
         >
-          🔊 Hear it
+          {copy.t('hearIt')}
         </button>
       </div>
 
@@ -224,10 +224,10 @@ export default function Hangman() {
             transition={{ type: 'spring', stiffness: 240, damping: 15 }}
             className="neon-text font-display text-5xl font-bold uppercase"
           >
-            {overlay.win ? 'Yay! ⭐' : overlay.word}
+            {overlay.win ? copy.t('roundWin') : overlay.word}
           </motion.div>
           {!overlay.win && (
-            <div className="text-xl font-bold opacity-90">That one was tricky! 🤗</div>
+            <div className="text-xl font-bold opacity-90">{copy.t('roundTricky')}</div>
           )}
         </motion.div>
       )}
@@ -236,7 +236,7 @@ export default function Hangman() {
         <RoundResult
           win
           emoji={theme.critter}
-          title={`${TOTAL_ROUNDS} words done!`}
+          title={copy.t('wordsDone')(TOTAL_ROUNDS)}
           score={result.score}
           rank={result.rank}
           onPlayAgain={() => setSession((s) => s + 1)}
