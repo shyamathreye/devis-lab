@@ -32,9 +32,10 @@ body {
   overflow: hidden;
 }
 
-/* Solid dark base so the page is NEVER white. iOS Safari frequently fails to
-   paint a radial-gradient with `background-attachment: fixed`, which left the
-   page white (and the white body text invisible). */
+/* Solid dark base so the page is NEVER white. iOS browsers all use WebKit
+   (Chrome included), which frequently fails to paint a radial-gradient with
+   `background-attachment: fixed` — that left the page white (and the white
+   body text invisible). */
 html {
   background-color: var(--bg-from);
 }
