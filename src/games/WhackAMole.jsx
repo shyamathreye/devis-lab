@@ -239,7 +239,7 @@ export default function WhackAMole() {
 
       {/* Ready countdown overlay */}
       {phase === 'ready' && (
-        <div className="absolute inset-0 z-40 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <motion.div
             key={countdown}
             initial={{ scale: 0.3, opacity: 0 }}
