@@ -39,11 +39,11 @@ export default function RoundResult({
         </motion.span>
         <h2 className="neon-text font-display text-3xl font-bold">{title}</h2>
 
-        {/* Silly family catchphrase */}
+        {/* Silly family catchphrase — bounces in, then wiggles for attention. */}
         <motion.div
-          initial={{ scale: 0.7, opacity: 0 }}
-          animate={{ scale: [0.7, 1.08, 1], opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
+          initial={{ scale: 0, y: -28, opacity: 0 }}
+          animate={{ scale: 1, y: 0, opacity: 1 }}
+          transition={{ delay: 0.35, type: 'spring', stiffness: 340, damping: 11 }}
           className="rounded-2xl px-4 py-2 font-display text-xl font-bold"
           style={{
             color: 'var(--accent)',
@@ -51,7 +51,13 @@ export default function RoundResult({
             boxShadow: '0 0 14px var(--accent)',
           }}
         >
-          {phrase}
+          <motion.span
+            className="inline-block"
+            animate={{ rotate: [0, -5, 5, -4, 4, -2, 0], scale: [1, 1.08, 1] }}
+            transition={{ delay: 1, duration: 0.9, repeat: Infinity, repeatDelay: 2 }}
+          >
+            {phrase}
+          </motion.span>
         </motion.div>
 
         {typeof score === 'number' && (
