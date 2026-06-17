@@ -5,23 +5,18 @@ import { useGame } from '../context/GameContext.jsx'
 import { DIFFICULTIES } from '../data/difficulties.js'
 import { ding } from '../lib/sound.js'
 
-const GAME_TITLES = {
-  hangman: 'Save the Balloons 🎈',
-  unscramble: 'Mix-Up Magic 🔤',
-  whack: 'Tap the Critter 👆',
-}
-
 export default function DifficultyPicker() {
-  const { game, goLobby, playWithDifficulty } = useGame()
+  const { game, goLobby, playWithDifficulty, copy } = useGame()
+  const meta = copy.game(game)
 
   return (
     <Screen>
-      <TopBar onBack={goLobby} label="Games" />
+      <TopBar onBack={goLobby} label={copy.t('backGames')} />
       <h2 className="mt-4 text-center font-display text-2xl font-bold opacity-90">
-        {GAME_TITLES[game]}
+        {meta.name} {meta.emoji}
       </h2>
       <h3 className="neon-text mt-1 text-center font-display text-3xl font-bold">
-        How hard?
+        {copy.t('howHard')}
       </h3>
 
       <div className="mt-7 grid w-full grid-cols-2 gap-4">
@@ -41,10 +36,10 @@ export default function DifficultyPicker() {
           >
             <span className="text-5xl">{d.emoji}</span>
             <span className="font-display text-2xl font-bold" style={{ color: 'var(--accent)' }}>
-              {d.name}
+              {copy.diff(d.id).name}
             </span>
             <span className="text-sm opacity-80">
-              {game === 'whack' ? d.paceBlurb : d.blurb}
+              {game === 'whack' ? copy.diff(d.id).paceBlurb : copy.diff(d.id).blurb}
             </span>
           </motion.button>
         ))}

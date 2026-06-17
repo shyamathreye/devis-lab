@@ -48,6 +48,18 @@ export const THEMES = {
     critter: '🚀',
     critters: ['🚀', '⭐', '🪐', '🌙', '☄️', '👽'],
   },
+  pirate: {
+    id: 'pirate',
+    name: 'Pirates',
+    emoji: '🏴‍☠️',
+    blurb: 'Treasure & seas',
+    accent: '#ffcf4d', // gold
+    accent2: '#19c3e6', // sea-cyan
+    bgFrom: '#2a1a0e', // dark wood-brown
+    bgTo: '#3d2410',
+    critter: '🦜',
+    critters: ['🦜', '🏴‍☠️', '⚓', '🗺️', '💰', '🦈'],
+  },
 }
 
 export const THEME_LIST = Object.values(THEMES)

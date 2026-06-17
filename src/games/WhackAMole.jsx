@@ -13,7 +13,7 @@ const NORMAL_POINTS = 10
 const GOLDEN_POINTS = 50
 
 export default function WhackAMole() {
-  const { name, theme, difficulty, goLobby } = useGame()
+  const { name, theme, difficulty, goLobby, copy } = useGame()
   const [round, setRound] = useState(0)
   const [phase, setPhase] = useState('ready') // ready | playing | done
   const [countdown, setCountdown] = useState(3)
@@ -171,10 +171,10 @@ export default function WhackAMole() {
 
   return (
     <Screen>
-      <TopBar onBack={goLobby} label="Games" />
+      <TopBar onBack={goLobby} label={copy.t('backGames')} />
 
       <div className="mt-2 flex w-full items-center justify-center gap-4">
-        <ScoreBadge label="Score" value={score} pulse />
+        <ScoreBadge label={copy.t('scoreLabel')} value={score} pulse />
         <ScoreBadge
           label="Time"
           value={`${timeLeft}s`}
@@ -184,7 +184,7 @@ export default function WhackAMole() {
       </div>
 
       <p className="mt-3 text-center text-base font-semibold opacity-85">
-        Tap the critters! {`🌟`} is worth lots!
+        {copy.t('whackInstruction')}
       </p>
 
       {/* Hole grid */}
@@ -246,7 +246,7 @@ export default function WhackAMole() {
             animate={{ scale: 1, opacity: 1 }}
             className="neon-text font-display text-8xl font-bold"
           >
-            {countdown === 0 ? 'GO!' : countdown}
+            {countdown === 0 ? copy.t('go') : countdown}
           </motion.div>
         </div>
       )}
@@ -255,7 +255,7 @@ export default function WhackAMole() {
         <RoundResult
           win
           emoji={theme.critter}
-          title="Time's up!"
+          title={copy.t('timesUp')}
           score={result.score}
           rank={result.rank}
           onPlayAgain={() => setRound((r) => r + 1)}

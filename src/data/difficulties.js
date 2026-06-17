@@ -1,13 +1,11 @@
-// Cute labels mapped to real gameplay parameters.
+// Real gameplay parameters per difficulty. Display names/blurbs live in
+// src/lib/copy.js (so they can be re-skinned per theme, e.g. pirate).
 // Difficulty changes word LENGTH and SPEED, never word obscurity —
 // every word stays solvable for a 5-7 year old.
 export const DIFFICULTIES = [
   {
     id: 'baby',
-    name: 'Baby',
     emoji: '🍼',
-    blurb: '3 letters',
-    paceBlurb: 'Nice & slow',
     bucket: 'baby',
     showFirstLetter: true, // hangman reveals first letter
     autoVoice: true, // speak the word automatically
@@ -21,10 +19,7 @@ export const DIFFICULTIES = [
   },
   {
     id: 'kid',
-    name: 'Kid',
     emoji: '🧒',
-    blurb: '4 letters',
-    paceBlurb: 'A little faster',
     bucket: 'kid',
     showFirstLetter: false,
     autoVoice: true,
@@ -36,10 +31,7 @@ export const DIFFICULTIES = [
   },
   {
     id: 'adult',
-    name: 'Adult',
     emoji: '🧑',
-    blurb: '5 letters',
-    paceBlurb: 'Quick!',
     bucket: 'adult',
     showFirstLetter: false,
     autoVoice: false,
@@ -51,10 +43,7 @@ export const DIFFICULTIES = [
   },
   {
     id: 'thatha',
-    name: 'Thatha',
     emoji: '👴',
-    blurb: 'Super hard!',
-    paceBlurb: 'Super fast!',
     bucket: 'thatha',
     showFirstLetter: false,
     autoVoice: false,

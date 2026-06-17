@@ -7,7 +7,7 @@ import { useGame } from '../context/GameContext.jsx'
 import { unlockAudio, ding } from '../lib/sound.js'
 
 export default function Welcome() {
-  const { setName, goTheme } = useGame()
+  const { setName, goTheme, copy } = useGame()
   const [value, setValue] = useState('')
 
   const submit = (e) => {
@@ -34,25 +34,24 @@ export default function Welcome() {
       </motion.div>
 
       <h1 className="neon-text mt-3 font-display text-5xl font-bold sm:text-6xl">
-        Devi Jones
+        {copy.t('appTitle')}
       </h1>
       <p className="mt-2 text-lg font-semibold opacity-90">
-        ✨ Games, words & giggles ✨
+        {copy.t('appTagline')}
       </p>
 
       <form onSubmit={submit} className="mt-10 flex w-full max-w-sm flex-col items-center gap-5">
-        <label className="text-xl font-bold">Hi! What's your name?</label>
+        <label className="text-xl font-bold">{copy.t('namePrompt')}</label>
         <input
-          autoFocus
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          placeholder="Type here…"
+          placeholder={copy.t('namePlaceholder')}
           maxLength={14}
           className="w-full rounded-2xl border-4 border-white/20 bg-white/10 px-5 py-4 text-center font-display text-2xl text-white placeholder-white/40 outline-none focus:border-white/50"
           style={{ boxShadow: '0 0 16px var(--accent)' }}
         />
         <NeonButton type="submit" silent className="w-full text-2xl" onClick={() => {}}>
-          Let's Play! 🎉
+          {copy.t('playCta')}
         </NeonButton>
       </form>
     </Screen>

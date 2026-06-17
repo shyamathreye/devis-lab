@@ -16,7 +16,7 @@ import { addScore } from '../lib/storage.js'
 const TOTAL_ROUNDS = 6
 
 export default function Unscramble() {
-  const { name, theme, difficulty, goLobby } = useGame()
+  const { name, theme, difficulty, goLobby, copy } = useGame()
   const [session, setSession] = useState(0) // bump to start a brand-new 6-word game
   // Fixed list of words for this game session.
   const words = useMemo(
@@ -91,7 +91,12 @@ export default function Unscramble() {
     if (stage === 2) speak(word)
     else if (stage === 3) spell(word)
   }
-  const hintLabel = ['💡 Clue', '🔊 Say it', '🔡 Spell it', '🔡 Spell it'][hintStage]
+  const hintLabel = [
+    copy.t('hintClue'),
+    copy.t('hintSay'),
+    copy.t('hintSpell'),
+    copy.t('hintSpell'),
+  ][hintStage]
 
   const checkAnswer = (slots) => {
     const attempt = slots.map((id) => tileById[id]?.ch).join('')
@@ -125,15 +130,15 @@ export default function Unscramble() {
 
   return (
     <Screen>
-      <TopBar onBack={goLobby} label="Games" />
+      <TopBar onBack={goLobby} label={copy.t('backGames')} />
 
       <div className="mt-2 flex w-full items-center justify-between gap-3 px-1">
         <ProgressDots total={TOTAL_ROUNDS} done={roundIdx} current={roundIdx} />
-        <ScoreBadge label="Score" value={totalScore} />
+        <ScoreBadge label={copy.t('scoreLabel')} value={totalScore} />
       </div>
 
       <h2 className="neon-text mt-3 text-center font-display text-2xl font-bold">
-        Spell the word!
+        {copy.t('spellWord')}
       </h2>
 
       {/* Picture hint */}
@@ -230,7 +235,7 @@ export default function Unscramble() {
           {hintLabel}
         </button>
         <span className="text-xs font-semibold opacity-60">
-          Tap for a clue → hear it → spell it
+          {copy.t('hintHelp')}
         </span>
       </div>
 
@@ -248,7 +253,7 @@ export default function Unscramble() {
             transition={{ type: 'spring', stiffness: 240, damping: 15 }}
             className="neon-text text-center font-display text-6xl font-bold"
           >
-            {roundIdx + 1 < TOTAL_ROUNDS ? 'Yay! ⭐' : 'All done! 🎉'}
+            {roundIdx + 1 < TOTAL_ROUNDS ? copy.t('roundWin') : copy.t('allDone')}
           </motion.div>
         </motion.div>
       )}
@@ -257,7 +262,7 @@ export default function Unscramble() {
         <RoundResult
           win
           emoji={theme.critter}
-          title={`${TOTAL_ROUNDS} words done!`}
+          title={copy.t('wordsDone')(TOTAL_ROUNDS)}
           score={result.score}
           rank={result.rank}
           onPlayAgain={() => setSession((s) => s + 1)}
